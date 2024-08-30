@@ -22,11 +22,11 @@ class UserController extends Controller
      */
     public function index()
     {
-        $user = User::select('id', 'name', 'email')->paginate('2');
+        $user = User::select('id', 'name', 'email')->paginate('10');
 
         return [
             'status' => 200,
-            'menssagem' => 'Usuários encontrados!!',
+            'menssagem' => 'Usuários encontrados',
             'user' => $user
         ];
     }
@@ -34,10 +34,7 @@ class UserController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
-    {
-
-    }
+    public function create() {}
 
     /**
      * Store a newly created resource in storage.
@@ -54,7 +51,7 @@ class UserController extends Controller
 
         return [
             'status' => 200,
-            'menssagem' => 'Usuário cadastrado com sucesso!!',
+            'menssagem' => 'Usuário cadastrado com sucesso',
             'user' => $user
         ];
     }
@@ -80,7 +77,26 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'status' => 404,
+                'mensagem' => 'Usuário inexistente'
+            ], 404);
+        }
+
+        $user->update([
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+            'password' => $request->input('password') ? bcrypt($request->input('password')) : $user->password,
+        ]);
+
+        return response()->json([
+            'status' => 200,
+            'mensagem' => 'Atualização do usuário concluída com êxito',
+            'user' => $user
+        ]);
     }
 
     /**
@@ -88,6 +104,20 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'status' => 404,
+                'mensagem' => 'Usuário inexistente'
+            ], 404);
+        }
+
+        $user->delete();
+
+        return response()->json([
+            'status' => 200,
+            'mensagem' => 'Usuário removido com êxito'
+        ]);
     }
 }
